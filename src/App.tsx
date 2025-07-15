@@ -1,73 +1,55 @@
 import './App.css';
-import { bitable, ITableMeta } from "@lark-base-open/js-sdk";
-import { Button, Form } from '@douyinfe/semi-ui';
-import { BaseFormApi } from '@douyinfe/semi-foundation/lib/es/form/interface';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { Tabs, TabPane } from '@douyinfe/semi-ui';
+import { bitable, ITableMeta } from '@lark-base-open/js-sdk';
+import PersonAnalysis from './components/analysis/PersonAnalysis';
+import DeviceAnalysis from './components/analysis/DeviceAnalysis';
+import ResourceUsageAnalysis from './components/analysis/ResourceUsageAnalysis';
+import AccountAnalysis from './components/analysis/AccountAnalysis';
+import ResourceIdleAnalysis from './components/analysis/ResourceIdleAnalysis';
 
 export default function App() {
-  const [tableMetaList, setTableMetaList] = useState<ITableMeta[]>();
-  const formApi = useRef<BaseFormApi>();
-  const addRecord = useCallback(async ({ table: tableId }: { table: string }) => {
-    if (tableId) {
-      const table = await bitable.base.getTableById(tableId);
-      table.addRecord({
-        fields: {},
-      });
-    }
-  }, []);
-  useEffect(() => {
-    Promise.all([bitable.base.getTableMetaList(), bitable.base.getSelection()])
-      .then(([metaList, selection]) => {
-        setTableMetaList(metaList);
-        formApi.current?.setValues({ table: selection.tableId });
-      });
-  }, []);
+  const [tableList, setTableList] = useState<ITableMeta[]>([]);
 
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const tables = await bitable.base.getTableMetaList();
+        setTableList(tables);
+      } catch (error) {
+        console.error('获取表格列表失败:', error);
+      }
+    };
+
+    fetchTables();
+  }, []);
   return (
     <main className="main">
-      <h4>
-        Edit <code>src/App.tsx</code> and save to reload
-      </h4>
-      <Form labelPosition='top' onSubmit={addRecord} getFormApi={(baseFormApi: BaseFormApi) => formApi.current = baseFormApi}>
-        <Form.Slot label="Development guide">
-          <div>
-            <a href="https://lark-technologies.larksuite.com/docx/HvCbdSzXNowzMmxWgXsuB2Ngs7d" target="_blank"
-              rel="noopener noreferrer">
-              Base Extensions Guide
-            </a>
-            、
-            <a href="https://bytedance.feishu.cn/docx/HazFdSHH9ofRGKx8424cwzLlnZc" target="_blank"
-              rel="noopener noreferrer">
-              多维表格插件开发指南
-            </a>
-          </div>
-        </Form.Slot>
-        <Form.Slot label="API">
-          <div>
-            <a href="https://lark-technologies.larksuite.com/docx/Y6IcdywRXoTYSOxKwWvuLK09sFe" target="_blank"
-              rel="noopener noreferrer">
-              Base Extensions Front-end API
-            </a>
-            、
-            <a href="https://bytedance.feishu.cn/docx/HjCEd1sPzoVnxIxF3LrcKnepnUf" target="_blank"
-              rel="noopener noreferrer">
-              多维表格插件API
-            </a>
-          </div>
-        </Form.Slot>
-        <Form.Select field='table' label='Select Table' placeholder="Please select a Table" style={{ width: '100%' }}>
-          {
-            Array.isArray(tableMetaList) && tableMetaList.map(({ name, id }) => {
-              return (
-                <Form.Select.Option key={id} value={id}>
-                  {name}
-                </Form.Select.Option>
-              );
-            })
-          }
-        </Form.Select>
-        <Button theme='solid' htmlType='submit'>Add Record</Button>
-      </Form>
+      <br/><h5>【资源分析插件】｜请按表单顺序操作进行使用</h5><br/>
+      <hr className="section-divider"/>
+      <br/>
+      <Tabs type="button">
+        <TabPane tab="人员总量分析" itemKey="1">
+          <hr className="form-divider"/>
+          <PersonAnalysis tableList={tableList} />
+        </TabPane>
+        <TabPane tab="设备总量分析" itemKey="2">
+          <hr className="form-divider"/>
+          <DeviceAnalysis tableList={tableList} />
+        </TabPane>
+        <TabPane tab="账号总量分析" itemKey="3">
+          <hr className="form-divider"/>
+          <AccountAnalysis tableList={tableList} />
+        </TabPane>
+        <TabPane tab="资源使用分析" itemKey="4">
+          <hr className="form-divider"/>
+          <ResourceUsageAnalysis tableList={tableList} />
+        </TabPane>
+        <TabPane tab="资源空闲分析" itemKey="5">
+          <hr className="form-divider"/>
+          <ResourceIdleAnalysis tableList={tableList} />
+        </TabPane>
+      </Tabs>
     </main>
-  )
+  );
 }
