@@ -7,6 +7,7 @@
 
 请按照以下步骤完成任务：
 1. 仔细检查项目，确保其可以正常运行。
-2. 更新本地代码推送到GitHub仓库主分支。
-3. 执行git subtree push命令将dist目录推送到gh-pages分支以部署GitHub Pages；
-4. 获取GitHub上发布内容的可访问地址。
+2. 更新本地代码推送到GitHub仓库。
+3. 直接在远端，将分支和主分支完成合并。
+4. 执行git subtree push命令将dist目录推送到gh-pages分支以部署GitHub Pages； 
+5. 获取GitHub上发布内容的可访问地址。
